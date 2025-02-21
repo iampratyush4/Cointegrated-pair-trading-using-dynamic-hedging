@@ -14,12 +14,12 @@ warnings.filterwarnings("ignore")
 # Step 1: Load and Preprocess Data
 # ======================================================================
 
-# Define the assets (example: GLD and IAU, two gold ETFs)
-symbol1 = "GLD"
-symbol2 = "IAU"
+
+symbol1 = "WMT"
+symbol2 = "TGT"
 
 # Download historical data using yfinance
-data = yf.download([symbol1, symbol2], start="2018-01-01", end="2023-01-01")["Adj Close"]
+data = yf.download([symbol1, symbol2], start="2018-01-01", end="2023-01-01")["Close"]
 
 # Drop missing values and rename columns
 data = data.dropna()
