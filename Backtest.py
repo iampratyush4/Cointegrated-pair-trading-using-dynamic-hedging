@@ -126,3 +126,44 @@ for t in range(window, len(data)):
         positions[t] = 0
     else:
         positions[t] = positions[t-1]  # Hold previous position
+
+# ======================================================================
+# Step 6: Backtest Strategy
+# ======================================================================
+
+# Calculate daily returns of the spread
+spread_returns = np.diff(spread) / spread[:-1]
+
+# Strategy returns (assuming 1:1 capital allocation)
+strategy_returns = positions[:-1] * spread_returns
+
+# Cumulative returns
+cumulative_returns = np.cumprod(1 + strategy_returns) - 1
+
+# Plot results
+plt.figure(figsize=(12, 8))
+plt.subplot(3, 1, 1)
+plt.plot(data[symbol1], label=symbol1)
+plt.plot(data[symbol2], label=symbol2)
+plt.legend()
+plt.title("Asset Prices")
+
+plt.subplot(3, 1, 2)
+plt.plot(beta, label='Kalman Hedge Ratio')
+plt.legend()
+plt.title("Dynamic Hedge Ratio (Beta)")
+
+plt.subplot(3, 1, 3)
+plt.plot(z_score, label='Z-Score')
+plt.axhline(entry_threshold, linestyle='--', color='r')
+plt.axhline(-entry_threshold, linestyle='--', color='g')
+plt.legend()
+plt.title("Z-Score of Spread")
+
+plt.tight_layout()
+plt.show()
+
+# Plot cumulative returns
+plt.plot(cumulative_returns)
+plt.title("Cumulative Strategy Returns")
+plt.show()
