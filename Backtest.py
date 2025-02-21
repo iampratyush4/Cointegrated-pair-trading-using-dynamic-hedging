@@ -64,3 +64,35 @@ kf = KalmanFilter(
     observation_covariance=1.0,  # R (measurement noise variance)
     transition_covariance=0.01  # Q (process noise variance)
 )
+
+# Fit the Kalman filter to training data to estimate parameters (optional)
+# This step uses EM algorithm to optimize Q and R
+# kf = kf.em(X.reshape(-1, 1), n_iter=10)
+
+# ======================================================================
+# Step 4: Dynamic Hedge Ratio Calculation (Using Kalman Filter)
+# ======================================================================
+
+# Initialize arrays to store results
+beta = np.ones(len(data))  # Time-varying hedge ratio
+spread = np.zeros(len(data))  # Cointegration spread
+
+# Iterate through all data points (train + test)
+for t in range(1, len(data)):
+    # Get current prices
+    y_t = data[symbol1].iloc[t]
+    x_t = data[symbol2].iloc[t]
+
+    # Update Kalman filter
+    # Predict step: beta_t|t-1 = beta_{t-1}
+    beta_pred, cov_pred = kf.filter_update(
+        filtered_state_mean=beta[t-1],
+        filtered_state_covariance=cov_pred if t > 1 else np.ones(1),
+        observation=y_t,
+        observation_matrix=np.array([[x_t]]),
+        observation_covariance=np.array([[1.0]])
+    )
+
+    # Store updated beta and spread
+    beta[t] = beta_pred[0]
+    spread[t] = y_t - beta[t] * x_t
