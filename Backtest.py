@@ -96,3 +96,33 @@ for t in range(1, len(data)):
     # Store updated beta and spread
     beta[t] = beta_pred[0]
     spread[t] = y_t - beta[t] * x_t
+
+# ======================================================================
+# Step 5: Generate Trading Signals (Z-Score)
+# ======================================================================
+
+# Calculate rolling mean and std of the spread
+window = 20  # Lookback period for Z-score
+rolling_mean = pd.Series(spread).rolling(window).mean()
+rolling_std = pd.Series(spread).rolling(window).std()
+z_score = (spread - rolling_mean) / rolling_std
+
+# Define trading rules
+entry_threshold = 2.0
+exit_threshold = 0.5
+
+# Initialize positions
+positions = np.zeros(len(data))  # +1 = long spread, -1 = short spread
+
+for t in range(window, len(data)):
+    # Enter long spread (spread is undervalued)
+    if z_score[t] < -entry_threshold:
+        positions[t] = 1
+    # Enter short spread (spread is overvalued)
+    elif z_score[t] > entry_threshold:
+        positions[t] = -1
+    # Exit position when spread crosses zero
+    elif np.sign(z_score[t]) != np.sign(z_score[t-1]) and abs(z_score[t]) < exit_threshold:
+        positions[t] = 0
+    else:
+        positions[t] = positions[t-1]  # Hold previous position
