@@ -1,0 +1,86 @@
+# ===========================
+# Data Loader Settings
+# ===========================
+data:
+  tickers:               # List of tickers to consider in universe
+    - "SPY"
+    - "IWM"
+    - "QQQ"
+    - "DIA"
+    - "GLD"
+    - "IAU"
+    - "SLV"
+    - "USO"
+    - "XLF"
+    - "XLE"
+    - "XLK"
+    - "XLY"
+    - "XLC"
+    - "XLI"
+    - "XLV"
+    - "XLP"
+    - "XLU"
+    - "XLRE"
+    - "XLV"
+    - "XBI"
+    - "SMH"
+    - "XHB"
+    - "XLF"
+    - "XLI"
+    - "XME"
+  start_date: "2018-01-01"
+  end_date:   "2023-01-01"
+  interval:   "1d"        # "1d", "5m", etc.
+
+# ===========================
+# Pair Selector Settings
+# ===========================
+pair_selector:
+  cluster_size: 20        # approx. number of tickers per cluster
+  coint_pval_threshold: 0.05
+  rolling_window: 252     # days for rolling cointegration
+  rolling_step: 63        # days per step
+  min_valid_periods: 2    # consecutive windows required
+
+# ===========================
+# Kalman Hedge Settings
+# ===========================
+kalman:
+  initial_state_cov: [[1e-4, 0], [0, 1e-4]]  # small prior covariance for intercept & beta
+  transition_cov:   [[1e-5, 0], [0, 1e-5]]  # process noise; EM will refine
+  observation_cov:  1e-3                    # observation noise; EM will refine
+  em_iterations:    20
+
+# ===========================
+# Signal Generator Settings
+# ===========================
+signal:
+  zscore_window: 20      # rolling window for spread mean/std
+  entry_z: 2.0           # base z-score for entry (will scale by vol)
+  exit_z: 0.5            # base z-score for exit
+  target_vol: 0.001      # target daily vol of spread (10 bps)
+  min_vol_percentile: 30 # only trade if spread vol rank < 30th percentile
+  momentum_filter: true  # require spread momentum to point back to mean
+
+# ===========================
+# Transaction Cost Settings
+# ===========================
+costs:
+  fixed_per_trade: 0.005   # $0.005 per share
+  slippage_coefficient: 0.0001  # 1 bp slippage per 0.1% of ADV
+
+# ===========================
+# Risk Engine Settings
+# ===========================
+risk:
+  daily_var_window: 252
+  var_confidence: 0.95
+  max_drawdown_limit: 0.02   # 2% per day (hard stop)
+  worst_pair_dd: 0.05        # drop pair if drawdown > 5%
+
+# ===========================
+# Portfolio Optimizer Settings
+# ===========================
+portfolio:
+  min_weight: 0.0
+  max_weight: 0.1          # no single pair >10% of capital
